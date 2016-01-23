@@ -3,7 +3,7 @@
 'use strict';
 var Resizer = require('./app/components/resizer');
 var Downloader = require('./app/components/downloader');
-
+var inputCSVFile = 'data/image_urls.csv';
 // var Buffer = require('bugger');
 
 (function() {
@@ -13,7 +13,7 @@ var Downloader = require('./app/components/downloader');
 
   //collect urls from a csv
   //keep track of listing_id association
-  downloader.parse('data/image_urls_test.csv');
+  downloader.parse(inputCSVFile);
   //download images based on urls
   //once a file is downloaded, emit event with file location
 

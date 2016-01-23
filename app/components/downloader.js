@@ -3,10 +3,11 @@ module.exports = (function() {
 
   var http = require('http');
   var fs = require('fs');
+  var path = require('path');
+  var validator = require('validator');
   var parse = require('csv-parse');
-  function Downloader() {
 
-  }
+  function Downloader() {}
 
   Downloader.prototype.parse = function(file) {
     var _this = this;
@@ -14,37 +15,49 @@ module.exports = (function() {
       input: fs.createReadStream(file)
     });
 
-    lineReader.on('line', function(line) {
+    console.log('Beginning CSV parsing...');
+    lineReader.on('line', (line) => { //read one line at a time
 
-      parse(line, function(err, items) {
-        var lineItem = items[0];
+      parse(line, (err, items) => {
+        if (err) {
+          console.log(line);
+          console.log(err)
+        } else {
 
-        if (lineItem[0]) { //if there is a url
-          var photoId = lineItem[1];
-          var listingId = lineItem[2];
-          var extension = lineItem[0].slice(-3); //get last 3 chars
+          var lineItem = items[0] || [];
           var url = 'http:' + lineItem[0];
 
-          var request = http.get(url, function(response) {
-            var data = '';
-            var outputFile = __dirname + '../data/listing_' + listingId + '_photo_' + photoId + '.' + extension;
-            console.log(outputFile);
-            response.on('data', function(chunk) {
-              data += chunk;
-            });
+          if (validator.isURL(url)) { //if there is a url
+            var outputFile = getOutputFile(lineItem);
 
-            response.on('end', function() {
-              //once a response is complete for a file
-              // fs.write(outputFile, data, function(err, written) {
-              //   console.log(written + ' bytes written to ' + outputFile);
-              // });
-            });
-          });
+            var request = http.get(url, (response) => {
+              _this.handleReseponse(response, outputFile)
+            }).on('error', (e) => {
+              console.log(`Got error: ${e.message}`);
+            });;
+          }
         }
       });
 
     });
   };
+
+  Downloader.prototype.handleReseponse = function(response, outputFile) {
+    if (response.statusCode === 200) {
+      var data = '';
+
+      fs.open(outputFile, 'wx', (err, fd) => { //maybe open before http?
+
+        var stream = fs.createWriteStream(outputFile);
+        response.pipe(stream);
+        response.on('end', () => {
+          var outputFileString = outputFile.substr(outputFile.indexOf('listing_'));
+          console.log(outputFileString + ' downloaded');
+        });
+      });
+
+    }
+  }
 
   Downloader.prototype.download = function(url) {
 
@@ -53,6 +66,11 @@ module.exports = (function() {
   Downloader.prototype.save = function(location) {
 
   };
+
+  //private
+  function getOutputFile(lineItem) {
+    return path.join(__dirname, '..', '..', 'output/listing_' + lineItem[2] + '_photo_' + lineItem[1] + '.' + lineItem[0].slice(-3))
+  }
 
   return Downloader;
 })();
