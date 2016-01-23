@@ -1,0 +1,17 @@
+{
+  "name": "tsf-image-resizer",
+  "version": "1.0.0",
+  "description": "One off mass image resizing tool for The Storefront Inc.",
+  "main": "app.js",
+  "dependencies": {
+    "async": "^1.5.2",
+    "csv-parse": "^1.0.1",
+    "pg": "^4.4.3",
+    "sharp": "^0.12.2"
+  },
+  "scripts": {
+    "test": "npm test"
+  },
+  "author": "Jamie Tahirkheli",
+  "license": "ISC"
+}
