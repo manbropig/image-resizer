@@ -33,7 +33,8 @@ var inputCSVFile = 'data/image_urls.csv';
 
 
   emitter.on('request set complete', () => {
-    console.log('first complete');
+    console.log('set complete');
+    downloader.download();
   });
 
   // async.waterfall([

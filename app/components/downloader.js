@@ -45,66 +45,64 @@ module.exports = (function() {
       });
     });
 
-    lineReader.on('close', function() {
+    lineReader.on('close', () => {
       _this.emitter.emit('csv read complete', _this.csvData);
     });
   };
+
   //split data into chunks of n
   Downloader.prototype.getNextDataSet = function(amount) {
-    // var start = nextIndex - _this.readData.length;
-    // var end = (this.csvData.length < start + 10) ? start + 10 : this.csvData.length - start;
-    // var currentData = this.csvData.slice(start, end);
-    // _this.readData.concat(currentData);
-
+    var amount = amount || this.chunkSize;
     var nextSet = this.csvData.splice(0, amount);
-    console.log(nextSet);
-    this.readData.concat(nextSet);
+
+    this.readData = this.readData.concat(nextSet);
+
     return nextSet;
   };
 
   //TODO: now use the array instead of the whole file - loop 20 at a time
-  Downloader.prototype.parse = function(file) {
-    var _this = this;
-
-    var lineReader = require('readline').createInterface({
-      input: fs.createReadStream(file)
-    });
-
-    console.log('Beginning CSV parsing...');
-    lineReader.on('line', (line) => { //read one line at a time
-
-      parse(line, (err, items) => {
-        if (err) {
-          console.log(line);
-          console.log(err)
-        } else {
-
-          var lineItem = items[0] || [];
-          var url = 'http:' + lineItem[0];
-
-          if (validator.isURL(url)) { //if there is a url
-
-            var outputFile = getOutputFile(lineItem);
-            var request = http.get(url, (response) => {
-
-              _this.handleReseponse(response, outputFile)
-
-            }).on('error', (e) => {
-
-              console.log(`Got error: ${e.message}`);
-
-            });
-          }
-          else {
-
-            console.log('invalid url: ' + url);
-
-          }
-        }
-      });
-
-    });
-  };
+  // Downloader.prototype.parse = function(file) {
+  //   var _this = this;
+  //
+  //   var lineReader = require('readline').createInterface({
+  //     input: fs.createReadStream(file)
+  //   });
+  //
+  //   console.log('Beginning CSV parsing...');
+  //   lineReader.on('line', (line) => { //read one line at a time
+  //
+  //     parse(line, (err, items) => {
+  //       if (err) {
+  //         console.log(line);
+  //         console.log(err)
+  //       } else {
+  //
+  //         var lineItem = items[0] || [];
+  //         var url = 'http:' + lineItem[0];
+  //
+  //         if (validator.isURL(url)) { //if there is a url
+  //
+  //           var outputFile = getOutputFile(lineItem);
+  //           var request = http.get(url, (response) => {
+  //
+  //             _this.handleReseponse(response, outputFile)
+  //
+  //           }).on('error', (e) => {
+  //
+  //             console.log(`Got error: ${e.message}`);
+  //
+  //           });
+  //         }
+  //         else {
+  //
+  //           console.log('invalid url: ' + url);
+  //
+  //         }
+  //       }
+  //     });
+  //
+  //   });
+  // };
 
   Downloader.prototype.handleReseponse = function(response, outputFile) {
     if (response.statusCode === 200) {
@@ -137,16 +135,17 @@ module.exports = (function() {
           console.log(`Got error: ${e.message}`);
 
         });
-        
+
         response.on('end', () => {
-            //somecounter++ until somecounter === data.length, THEN emit 'send data'
-            requestCounter++;
-            console.log(requestCounter, data.length);
-            if (requestCounter === data.length) {
 
-                _this.emitter.emit('request set complete');
+          requestCounter++;
 
-            }
+          if (requestCounter === data.length) {
+            console.log('csvData length' ,_this.csvData.length);
+            console.log('readData length' ,_this.readData.length);
+            _this.emitter.emit('request set complete');
+
+          }
         });
 
       });
