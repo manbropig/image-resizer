@@ -4,8 +4,12 @@ module.exports = (function() {
 
   var fs = require('fs');
 
-  function Resizer() {
+  function Resizer(params) {
     this.sharp = require('sharp');
+    this.largeImages = params.files;
+    this.currentImages = []; //array of files currently being processed
+    this.resizedImages = [];
+    this.chunkSize = params.chunkSize;
   }
 
   Resizer.prototype.setDestination = function(destinationFile) {
@@ -48,6 +52,14 @@ module.exports = (function() {
 
     });
   };
+
+  Resizer.prototype.getNextDataSet = function(amount) {
+    var amount = amount || this.chunkSize;
+    this.currentImages = this.largeImages.splice(0, amount);
+
+    return this;
+  };
+
 
   return Resizer;
 

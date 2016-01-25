@@ -1,41 +1,55 @@
 #!/usr/bin/env node
 
 'use strict';
-var Resizer = require('./app/components/resizer');
-var Downloader = require('./app/components/downloader');
-var EventEmitter = require('events');
-var async = require('async');
-var inputCSVFile = 'data/image_urls.csv';
-// var Buffer = require('bugger');
+let Resizer = require('./app/components/resizer');
+let Downloader = require('./app/components/downloader');
+let EventEmitter = require('events');
+let async = require('async');
+let inputCSVFile = 'data/image_urls_test.csv';
 
 (function() {
-  var emitter = new EventEmitter();
-  //init tools
-  var resizer = new Resizer();
-  var downloader = new Downloader(emitter, 5);
+  let emitter = new EventEmitter();
+  let downloader = new Downloader({eventEmitter: emitter, chunkSize: 1, outputDir: 'output'});
 
-  //collect urls from a csv
-  //keep track of listing_id association
-  // downloader.parse(inputCSVFile);
   downloader.readCSV(inputCSVFile);
+
   emitter.on('csv read complete', () => {
-    async.waterfall([
-      (callback) => {
-        //NOTE: here instead call downloader.download or something which calls
-        //getNextData, downloads all the images in the set,
-        //then emits a 'send next data set' event
-        //or 'done' event if done
-        downloader.download();
 
-      }
-    ])
+    downloader.download();
+
   });
-
 
   emitter.on('request set complete', () => {
+
     console.log('set complete');
     downloader.download();
+
   });
+
+  emitter.on('all images downloaded', () => {
+
+    console.log('Begin to resize all images...');
+
+    async.waterfall([
+      (callback) => {
+        //resize all images here
+        let fs = require('fs');
+        fs.readdir('output', (err, files) => {
+          if (err) {
+            console.log(err);
+          }
+
+          let resizer = new Resizer({files: files, chunkSize: 5});
+          console.log(files);
+          resizer.getNextDataSet();
+          console.log('current image set: \n', resizer.currentImages);
+        });
+
+      },
+
+    ]);
+  });
+
 
   // async.waterfall([
   //   function(callback) {

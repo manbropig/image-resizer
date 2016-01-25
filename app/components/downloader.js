@@ -7,11 +7,12 @@ module.exports = (function() {
   var validator = require('validator');
   var parse = require('csv-parse');
 
-  function Downloader(eventEmitter, chunkSize) {
+  function Downloader(params) {
     this.csvData = [];
     this.readData = [];
-    this.emitter = eventEmitter;
-    this.chunkSize = chunkSize;
+    this.emitter = params.eventEmitter;
+    this.chunkSize = params.chunkSize;
+    this.largeImageDir = params.outputDir;
   }
 
   Downloader.prototype.readCSV = function(file) {
@@ -34,7 +35,7 @@ module.exports = (function() {
           //TODO: fix - removing some good URLS - just check url exists?
           if (validator.isURL(url)) { //if there is a url
 
-            _this.csvData.push({url: url, outputFile: getOutputFile(lineItem)});
+            _this.csvData.push({url: url, outputFile: getOutputFile(_this, lineItem)});
 
           } else {
 
@@ -59,50 +60,6 @@ module.exports = (function() {
 
     return nextSet;
   };
-
-  //TODO: now use the array instead of the whole file - loop 20 at a time
-  // Downloader.prototype.parse = function(file) {
-  //   var _this = this;
-  //
-  //   var lineReader = require('readline').createInterface({
-  //     input: fs.createReadStream(file)
-  //   });
-  //
-  //   console.log('Beginning CSV parsing...');
-  //   lineReader.on('line', (line) => { //read one line at a time
-  //
-  //     parse(line, (err, items) => {
-  //       if (err) {
-  //         console.log(line);
-  //         console.log(err)
-  //       } else {
-  //
-  //         var lineItem = items[0] || [];
-  //         var url = 'http:' + lineItem[0];
-  //
-  //         if (validator.isURL(url)) { //if there is a url
-  //
-  //           var outputFile = getOutputFile(lineItem);
-  //           var request = http.get(url, (response) => {
-  //
-  //             _this.handleReseponse(response, outputFile)
-  //
-  //           }).on('error', (e) => {
-  //
-  //             console.log(`Got error: ${e.message}`);
-  //
-  //           });
-  //         }
-  //         else {
-  //
-  //           console.log('invalid url: ' + url);
-  //
-  //         }
-  //       }
-  //     });
-  //
-  //   });
-  // };
 
   Downloader.prototype.handleReseponse = function(response, outputFile) {
     if (response.statusCode === 200) {
@@ -145,6 +102,12 @@ module.exports = (function() {
             console.log('readData length' ,_this.readData.length);
             _this.emitter.emit('request set complete');
 
+            if (_this.csvData.length === 0) {
+
+              _this.emitter.emit('all images downloaded');
+
+            }
+
           }
         });
 
@@ -157,8 +120,8 @@ module.exports = (function() {
   };
 
   //private
-  function getOutputFile(lineItem) {
-    return path.join(__dirname, '..', '..', 'output/listing_' + lineItem[2] + '_photo_' + lineItem[1] + '.' + lineItem[0].slice(-3))
+  function getOutputFile(downloader, lineItem) {
+    return path.join(__dirname, '..', '..', downloader.largeImageDir + '/listing_' + lineItem[2] + '_photo_' + lineItem[1] + '.' + lineItem[0].slice(-3))
   }
 
   return Downloader;
