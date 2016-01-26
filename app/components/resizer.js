@@ -53,12 +53,12 @@ module.exports = (function() {
     });
   };
 
-  Resizer.prototype.getNextDataSet = function(amount) {
-    var amount = amount || this.chunkSize;
-    this.currentImages = this.largeImages.splice(0, amount);
-
-    return this;
-  };
+  // Resizer.prototype.getNextDataSet = function(amount) {
+  //   var amount = amount || this.chunkSize;
+  //   this.currentImages = this.largeImages.splice(0, amount);
+  //
+  //   return this;
+  // };
 
 
   return Resizer;
