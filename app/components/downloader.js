@@ -42,13 +42,13 @@ module.exports = (function() {
             _this.csvData.push({url: url, outputFile: getOutputFile(_this, lineItem)});
 
           } else {
-            var errorMessage = 'invalid url for photo: ' + lineItem[1] + ' listing: ' + lineItem[2] + '\n';
-            console.log(errorMessage);
-            fs.appendFile('errors.txt', errorMessage, function(err) {
-              if (err) {
-                console.log(err);
-              }
-            });
+            // var errorMessage = 'invalid url for photo: ' + lineItem[1] + ' listing: ' + lineItem[2] + '\n';
+            // console.log(errorMessage);
+            // fs.appendFile('errors.txt', errorMessage, function(err) {
+            //   if (err) {
+            //     console.log(err);
+            //   }
+            // });
           }
         }
       });
@@ -133,7 +133,8 @@ module.exports = (function() {
 
   //private
   function getOutputFile(downloader, lineItem) {
-    return path.join(__dirname, '..', '..', downloader.largeImageDir + '/listing_' + lineItem[2] + '_photo_' + lineItem[1] + '.' + lineItem[0].slice(-3))
+    let extension = path.parse(lineItem[0]).ext.toLowerCase();
+    return path.join(__dirname, '..', '..', downloader.largeImageDir + '/listing_' + lineItem[2] + '_photo_' + lineItem[1] + extension);
   }
 
   return Downloader;

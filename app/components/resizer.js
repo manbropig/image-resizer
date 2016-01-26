@@ -65,15 +65,26 @@ module.exports = (function() {
 
   Resizer.prototype.getExtension = function(input) {
     let ext = path.parse(input).ext.substr(1); //remove the '.'
-    return { 'jpg' : 'jpeg','png' : 'png'}[ext.toLowerCase()];
+    return {'jpeg': 'jpeg', 'jpg' : 'jpeg','png' : 'png', 'gif': 'gif'}[ext.toLowerCase()];
   };
 
   Resizer.prototype.resize = function(params, callback) {
-    console.log(params);
-    this.sharp(params.inputFile)
-    .resize(params.width, null)
-    .toFormat(params.ext)
-    .toBuffer(callback);
+    try {
+      this.sharp(params.inputFile)
+      .resize(params.width, null)
+      .toFormat(params.ext)
+      .toBuffer(callback);
+    } catch(e) {
+      var errorMessage = `Bad image ${params.inputFile} or bad extension: ${params.ext}`;
+      console.log(errorMessage);
+      fs.appendFile('resize_errors.txt', errorMessage, function(err) {
+        if (e) {
+          console.log(err);
+        }
+        callback();
+      });
+
+    }
   };
 
   Resizer.prototype.processImage = function(inputFile, callback) {

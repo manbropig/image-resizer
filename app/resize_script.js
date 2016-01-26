@@ -1,9 +1,9 @@
 "use strict";
 
-let Resizer      = require('./app/components/resizer');
+let Resizer      = require('./components/resizer');
 let EventEmitter = require('events');
 let async        = require('async');
-let util         = require('./app/components/util');
+let util         = require('./components/util');
 let _            = require('underscore');
 
 (function() {
@@ -12,7 +12,7 @@ let _            = require('underscore');
   let emitter = new EventEmitter();
 
   let resizer = new Resizer({
-    chunkSize: 5,
+    chunkSize: 20,
     eventEmitter: emitter,
     targetDir: 'large_images'
   });

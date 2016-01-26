@@ -1,14 +1,14 @@
 "use strict";
 
-let Downloader   = require('./app/components/downloader');
+let Downloader   = require('./components/downloader');
+let util         = require('./components/util');
 let EventEmitter = require('events');
 let async        = require('async');
-let util         = require('./app/components/util');
 let inputCSVFile = 'data/image_urls_test.csv';
 
 (function() {
   let emitter = new EventEmitter();
-  let downloader = new Downloader({eventEmitter: emitter, chunkSize: 20, outputDir: 'large_images'});
+  let downloader = new Downloader({eventEmitter: emitter, chunkSize: 50, outputDir: 'large_images'});
 
   downloader.readCSV(inputCSVFile);
 

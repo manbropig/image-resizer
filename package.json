@@ -5,6 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "async": "^1.5.2",
+    "aws-sdk": "^2.2.32",
     "csv-parse": "^1.0.1",
     "pg": "^4.4.3",
     "sharp": "^0.12.2",
