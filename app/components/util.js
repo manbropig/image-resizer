@@ -1,5 +1,7 @@
 "use strict";
 
+let fs = require ('fs');
+
 module.exports = {
 
   getNextDataSet: function(me, source, dest, amt) {
@@ -8,7 +10,31 @@ module.exports = {
 
     me[dest] = me[dest].concat(nextSet);
     return nextSet;
-  }
-};
+  },
 
-return module.exports;
+
+  logError: function(errorMessage, file, callback) {
+    fs.appendFile(file, errorMessage, function(err) {
+      if (err) {
+        console.log(err);
+      }
+      if(typeof callback === 'function') {
+        callback();
+      }
+    });
+  },
+
+  writeLine: function(line, file, callback) {
+    fs.appendFile(file, line, function(err) {
+      if (err) {
+        console.log(err);
+      }
+      if(typeof callback === 'function') {
+        callback();
+      }
+    });
+  }
+
+}
+
+  return module.exports;

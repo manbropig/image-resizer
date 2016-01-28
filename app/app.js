@@ -4,11 +4,15 @@ let Downloader   = require('./components/downloader');
 let util         = require('./components/util');
 let EventEmitter = require('events');
 let async        = require('async');
-let inputCSVFile = 'data/image_urls_test.csv';
+let inputCSVFile = 'data/null_urls.csv';
 
 (function() {
   let emitter = new EventEmitter();
-  let downloader = new Downloader({eventEmitter: emitter, chunkSize: 50, outputDir: 'large_images'});
+  let downloader = new Downloader({
+    eventEmitter: emitter,
+    chunkSize: 50,
+    outputDir: 'data/new_large_images'
+  });
 
   downloader.readCSV(inputCSVFile);
 
@@ -19,9 +23,5 @@ let inputCSVFile = 'data/image_urls_test.csv';
     downloader.download();
   });
 
-  emitter.on('all images downloaded', () => {
-    console.log('* All images downloaded *');
-    console.log('Begin to resize all images...');
-  });
 
 })();

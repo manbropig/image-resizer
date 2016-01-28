@@ -12,9 +12,10 @@ let _            = require('underscore');
   let emitter = new EventEmitter();
 
   let resizer = new Resizer({
-    chunkSize: 20,
+    chunkSize: 50,
     eventEmitter: emitter,
-    targetDir: 'large_images'
+    targetDir: 'data/new_large_images',
+    width: 120
   });
 
   fs.readdir(resizer.largeImageDir, (err, files) => { //get all file from output directory
